@@ -1,0 +1,14 @@
+<schemalist>
+	<schema id="org.gnome.shell.extensions.topicons" path="/org/gnome/shell/extensions/topicons/">
+		<key name="icon-size" type="i">
+			<default>18</default>
+			<summary>Icon size</summary>
+			<description>Icon size in pixels.</description>
+		</key>
+		<key name="icon-padding" type="i">
+			<default>8</default>
+			<summary>Icon padding</summary>
+			<description>Icon padding in pixels.</description>
+		</key>
+	</schema>
+</schemalist>
