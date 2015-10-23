@@ -1,5 +1,22 @@
 // -*- mode: js2; indent-tabs-mode: nil; js2-basic-offset: 4 -*-
 // jshint esnext:true
+/*
+	topicons, a GNOME shell extension to show legacy tray icons in the top bar.
+	Copyright (C) 2015  Kevin Boxhoorn
+
+	topicons is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	topicons is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with topicons.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
@@ -29,20 +46,18 @@ const TopIconsSettingsWidget = new GObject.Class({
 
 		let notebook = new Gtk.Notebook();
 
-		/* SETTINGS */
+		// SETTINGS
 
 		let topiconsSettings = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
 		let topiconsSettingsTitle = new Gtk.Label({ label: Gettext.gettext("Settings") });
 
 		let topiconsSettingsMain = new Gtk.Box({ spacing: 30, orientation: Gtk.Orientation.HORIZONTAL, homogeneous: true, margin: 10});
-		indentWidget(topiconsSettingsMain);
 
 		let topiconsSettingsControl = new Gtk.Box({ spacing: 30, margin_left: 10, margin_top: 10, margin_right: 10 });
 
-		/* Icon Size Setting */
-
 		let topiconsSettingsGrid= new Gtk.Grid({ row_homogeneous: true, column_homogeneous: false});
 
+		// Icon Size Setting
 		let iconSizeLabel = new Gtk.Label({ label: Gettext.gettext("Icon Size (px)"), use_markup: true, xalign: 0, hexpand: true});
 		let iconSizeWidget = new Gtk.SpinButton({ halign:Gtk.Align.END });
 		iconSizeWidget.set_sensitive(true);
@@ -55,6 +70,7 @@ const TopIconsSettingsWidget = new GObject.Class({
 			Main.refresh();
 		}));
 
+		// Icon Padding Setting
 		let iconPaddingLabel = new Gtk.Label({ label: Gettext.gettext("Icon Padding (px)"), use_markup: true, xalign: 0, hexpand: true});
 		let iconPaddingWidget = new Gtk.SpinButton({ halign:Gtk.Align.END });
 		iconPaddingWidget.set_sensitive(true);
@@ -77,7 +93,30 @@ const TopIconsSettingsWidget = new GObject.Class({
 		topiconsSettings.add(topiconsSettingsControl);
 		topiconsSettings.add(topiconsSettingsMain);
 
+		// ABOUT
+		let topiconsAbout = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
+		let topiconsAboutTitle = new Gtk.Label({ label: Gettext.gettext("About") });
+
+		let topiconsAboutMain = new Gtk.Box({ spacing: 30, orientation: Gtk.Orientation.HORIZONTAL, homogeneous: true, margin: 10});
+
+		let topiconsAboutControl = new Gtk.Box({ spacing: 30, margin_left: 10, margin_top: 10, margin_right: 10 });
+
+		let topiconsAboutGrid= new Gtk.Grid({ row_homogeneous: true, column_homogeneous: false});
+
+		// License
+		licenseTextView = new Gtk.TextView({ hexpand: true, justification: Gtk.Justification.CENTER, editable: false });
+		licenseBuffer = licenseTextView.get_buffer();
+		licenseBuffer.set_text(Gettext.gettext("topicons, a GNOME shell extension to show legacy tray icons in the top bar.\nCopyright (C) 2015  Kevin Boxhoorn\n\ntopicons is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\ntopicons is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with topicons.  If not, see <http://www.gnu.org/licenses/>."), -1);
+
+		topiconsAboutGrid.attach(licenseTextView, 0, 0, 1, 1);
+
+		topiconsAboutMain.add(topiconsAboutGrid);
+
+		topiconsAbout.add(topiconsAboutControl);
+		topiconsAbout.add(topiconsAboutMain);
+
 		notebook.append_page(topiconsSettings, topiconsSettingsTitle);
+		notebook.append_page(topiconsAbout, topiconsAboutTitle);
 
 		this.add(notebook);
 	}
@@ -88,19 +127,4 @@ function buildPrefsWidget () {
 	widget.show_all();
 
 	return widget;
-}
-
-/*
- * Add a margin to the widget:
- *  left margin in LTR
- *  right margin in RTL
- */
-function indentWidget (widget){
-	let indent = 20;
-
-	if(Gtk.Widget.get_default_direction() == Gtk.TextDirection.RTL){
-		widget.set_margin_right(indent);
-	} else {
-		widget.set_margin_left(indent);
-	}
 }
