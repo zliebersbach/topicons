@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with topicons.  If not, see <http://www.gnu.org/licenses/>.
 
+# Install directory
 EXT_DIR=$(HOME)/.local/share/gnome-shell/extensions
 EXT_NAME=topIcons@kevin.sarox.com.au
 
