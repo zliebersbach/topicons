@@ -38,11 +38,10 @@ let trayAddedId = 0;
 let trayRemovedId = 0;
 let getSource = null;
 let icons = [];
-let iconBox;
 let notificationDaemon;
 let schema;
 
-function init() {
+function init () {
 	if (Main.legacyTray) {
 		notificationDaemon = Main.legacyTray;
 		NotificationDaemon.STANDARD_TRAY_ICON_IMPLEMENTATIONS = imports.ui.legacyTray.STANDARD_TRAY_ICON_IMPLEMENTATIONS;
@@ -62,8 +61,12 @@ function init() {
     schema.connect("changed::icon-padding", Lang.bind(this, refresh));
 }
 
-function enable() {
+function enable () {
 	GLib.idle_add(GLib.PRIORITY_LOW, moveToTop);
+}
+
+function disable () {
+	moveToTray();
 }
 
 function createSource (title, pid, ndata, sender, trayIcon) {
@@ -75,30 +78,26 @@ function createSource (title, pid, ndata, sender, trayIcon) {
 	return getSource(title, pid, ndata, sender, trayIcon);
 }
 
-function onTrayIconAdded(o, icon, role) {
+function onTrayIconAdded (o, icon, role) {
 	let wmClass = icon.wm_class ? icon.wm_class.toLowerCase() : "";
 	if (NotificationDaemon.STANDARD_TRAY_ICON_IMPLEMENTATIONS[wmClass] !== undefined)
 		return;
 
 	let buttonBox = new PanelMenu.ButtonBox();
-	iconBox = buttonBox.actor;
-	let parent = iconBox.get_parent();
-	let boxStyle = "-natural-hpadding: %dpx".format(schema.get_int("icon-padding"));
-	iconBox.set_style(boxStyle);
+	let box = buttonBox.actor;
+	let parent = box.get_parent();
 
-	let scaleFactor = St.ThemeContext.get_for_stage(global.stage).scale_factor;
-	let iconSize = schema.get_int("icon-size") * scaleFactor;
-
+	let iconSize = getIconSize();
 	icon.set_size(iconSize, iconSize);
-	iconBox.add_actor(icon);
-
 	icon.reactive = true;
 
+	box.add_actor(icon);
+	box.set_style(getIconStyle());
 	if (parent)
-		parent.remove_actor(iconBox);
+		parent.remove_actor(box);
 
 	icons.push(icon);
-	Main.panel._rightBox.insert_child_at_index(iconBox, 0);
+	Main.panel._rightBox.insert_child_at_index(box, 0);
 
 	let clickProxy = new St.Bin({ width: iconSize, height: iconSize });
 	clickProxy.reactive = true;
@@ -123,14 +122,14 @@ function onTrayIconAdded(o, icon, role) {
 	icon._clickProxy = clickProxy;
 }
 
-function onTrayIconRemoved(o, icon) {
+function onTrayIconRemoved (o, icon) {
 	let parent = icon.get_parent();
 	parent.destroy();
 	icon.destroy();
 	icons.splice(icons.indexOf(icon), 1);
 }
 
-function moveToTop() {
+function moveToTop () {
 	notificationDaemon._trayManager.disconnect(notificationDaemon._trayIconAddedId);
 	notificationDaemon._trayManager.disconnect(notificationDaemon._trayIconRemovedId);
 	trayAddedId = notificationDaemon._trayManager.connect("tray-icon-added", onTrayIconAdded);
@@ -165,7 +164,7 @@ function moveToTop() {
 	}
 }
 
-function moveToTray() {
+function moveToTray () {
 	if (trayAddedId !== 0) {
 		notificationDaemon._trayManager.disconnect(trayAddedId);
 		trayAddedId = 0;
@@ -202,16 +201,21 @@ function moveToTray() {
 	icons = [];
 }
 
-function disable() {
-	moveToTray();
+function refresh () {
+	let iconSize = getIconSize();
+	let iconStyle = getIconStyle();
+
+	for (let i = 0; i < icons.length; i++) {
+		let icon = icons[i];
+		icon.set_size(iconSize, iconSize);
+		icon.get_parent().set_style(iconStyle);
+	}
 }
 
-function refresh () {
+function getIconSize () {
 	let scaleFactor = St.ThemeContext.get_for_stage(global.stage).scale_factor;
-	let iconSize = schema.get_int("icon-size") * scaleFactor;
-	for (let i = 0; i < icons.length; i++)
-		icons[i].set_size(iconSize, iconSize);
-
-	let boxStyle = "-natural-hpadding: %dpx".format(schema.get_int("icon-padding"));
-	iconBox.set_style(boxStyle);
+	return schema.get_int("icon-size") * scaleFactor;
+}
+function getIconStyle () {
+	return "-natural-hpadding: %dpx".format(schema.get_int("icon-padding"));
 }
