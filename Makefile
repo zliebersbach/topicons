@@ -16,7 +16,7 @@
 
 # Install directory
 EXT_DIR=$(HOME)/.local/share/gnome-shell/extensions
-EXT_NAME=topIcons@kevin.sarox.com.au
+EXT_NAME=topIcons@kevinboxhoorn.yahoo.com
 
 build: build-schema
 	mkdir -vp build

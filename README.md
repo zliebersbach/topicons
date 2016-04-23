@@ -21,3 +21,9 @@ This will install into your user's extension directory (`~/.local/share/gnome-sh
 ## Configuring
 
 To enable and configure Top Icons, open GNOME Tweak tool and navigate to the extensions page.
+
+## Uninstalling
+
+To uninstall Top Icons, simply run the following command in the directory where the source code was downloaded:
+
+   $ make uninstall

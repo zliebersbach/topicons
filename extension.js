@@ -1,22 +1,21 @@
-// -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
 // jshint esnext:true
 /*
-	topicons, a GNOME shell extension to show legacy tray icons in the top bar.
-	Copyright (C) 2015  Kevin Boxhoorn
+   topicons, a GNOME shell extension to show legacy tray icons in the top bar.
+   Copyright (C) 2015  Kevin Boxhoorn
 
-	topicons is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+   topicons is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-	topicons is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+   topicons is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+   GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with topicons.  If not, see <http://www.gnu.org/licenses/>.
-*/
+   You should have received a copy of the GNU General Public License
+   along with topicons.	 If not, see <http://www.gnu.org/licenses/>.
+ */
 
 const Clutter = imports.gi.Clutter;
 const Shell = imports.gi.Shell;
@@ -41,7 +40,7 @@ let icons = [];
 let notificationDaemon;
 let schema;
 
-function init () {
+function init() {
 	if (Main.legacyTray) {
 		notificationDaemon = Main.legacyTray;
 		NotificationDaemon.STANDARD_TRAY_ICON_IMPLEMENTATIONS = imports.ui.legacyTray.STANDARD_TRAY_ICON_IMPLEMENTATIONS;
@@ -55,21 +54,21 @@ function init () {
 		getSource = Lang.bind(notificationDaemon, NotificationDaemon.NotificationDaemon.prototype._getSource);
 	}
 
-    schema = Convenience.getSettings();
+	schema = Convenience.getSettings();
 	// we need to refresh icons when user changes settings
-    schema.connect("changed::icon-size", Lang.bind(this, refresh));
-    schema.connect("changed::icon-padding", Lang.bind(this, refresh));
+	schema.connect("changed::icon-size", Lang.bind(this, refresh));
+	schema.connect("changed::icon-padding", Lang.bind(this, refresh));
 }
 
-function enable () {
+function enable() {
 	GLib.idle_add(GLib.PRIORITY_LOW, moveToTop);
 }
 
-function disable () {
+function disable() {
 	moveToTray();
 }
 
-function createSource (title, pid, ndata, sender, trayIcon) {
+function createSource(title, pid, ndata, sender, trayIcon) {
 	if (trayIcon) {
 		onTrayIconAdded(this, trayIcon, title);
 		return null;
@@ -78,7 +77,7 @@ function createSource (title, pid, ndata, sender, trayIcon) {
 	return getSource(title, pid, ndata, sender, trayIcon);
 }
 
-function onTrayIconAdded (o, icon, role) {
+function onTrayIconAdded(o, icon, role) {
 	let wmClass = icon.wm_class ? icon.wm_class.toLowerCase() : "";
 	if (NotificationDaemon.STANDARD_TRAY_ICON_IMPLEMENTATIONS[wmClass] !== undefined)
 		return;
@@ -122,14 +121,14 @@ function onTrayIconAdded (o, icon, role) {
 	icon._clickProxy = clickProxy;
 }
 
-function onTrayIconRemoved (o, icon) {
+function onTrayIconRemoved(o, icon) {
 	let parent = icon.get_parent();
 	parent.destroy();
 	icon.destroy();
 	icons.splice(icons.indexOf(icon), 1);
 }
 
-function moveToTop () {
+function moveToTop() {
 	notificationDaemon._trayManager.disconnect(notificationDaemon._trayIconAddedId);
 	notificationDaemon._trayManager.disconnect(notificationDaemon._trayIconRemovedId);
 	trayAddedId = notificationDaemon._trayManager.connect("tray-icon-added", onTrayIconAdded);
@@ -164,7 +163,7 @@ function moveToTop () {
 	}
 }
 
-function moveToTray () {
+function moveToTray() {
 	if (trayAddedId !== 0) {
 		notificationDaemon._trayManager.disconnect(trayAddedId);
 		trayAddedId = 0;
@@ -176,10 +175,9 @@ function moveToTray () {
 	}
 
 	notificationDaemon._trayIconAddedId = notificationDaemon._trayManager.connect("tray-icon-added",
-												Lang.bind(notificationDaemon, notificationDaemon._onTrayIconAdded));
+		Lang.bind(notificationDaemon, notificationDaemon._onTrayIconAdded));
 	notificationDaemon._trayIconRemovedId = notificationDaemon._trayManager.connect("tray-icon-removed",
-												Lang.bind(notificationDaemon, notificationDaemon._onTrayIconRemoved));
-
+		Lang.bind(notificationDaemon, notificationDaemon._onTrayIconRemoved));
 	notificationDaemon._getSource = getSource;
 
 	for (let i = 0; i < icons.length; i++) {
@@ -201,7 +199,7 @@ function moveToTray () {
 	icons = [];
 }
 
-function refresh () {
+function refresh() {
 	let iconSize = getIconSize();
 	let iconStyle = getIconStyle();
 
@@ -212,10 +210,10 @@ function refresh () {
 	}
 }
 
-function getIconSize () {
+function getIconSize() {
 	let scaleFactor = St.ThemeContext.get_for_stage(global.stage).scale_factor;
 	return schema.get_int("icon-size") * scaleFactor;
 }
-function getIconStyle () {
+function getIconStyle() {
 	return "-natural-hpadding: %dpx".format(schema.get_int("icon-padding"));
 }
