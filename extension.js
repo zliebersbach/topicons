@@ -98,7 +98,9 @@ function onTrayIconAdded(o, icon, role) {
 	icons.push(icon);
 	Main.panel._rightBox.insert_child_at_index(box, 0);
 
-	let clickProxy = new St.Bin({ width: iconSize, height: iconSize });
+	let clickProxy = new St.Bin({
+		width: iconSize
+	});
 	clickProxy.reactive = true;
 	Main.uiGroup.add_actor(clickProxy);
 
@@ -106,6 +108,7 @@ function onTrayIconAdded(o, icon, role) {
 		Meta.later_add(Meta.LaterType.BEFORE_REDRAW, function() {
 			let [x, y] = icon.get_transformed_position();
 			clickProxy.set_position(x, y);
+			clickProxy.set_height(Main.panel._rightBox.get_height());
 		});
 	});
 
