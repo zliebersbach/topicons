@@ -33,6 +33,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Extension = ExtensionUtils.getCurrentExtension();
 const Convenience = Extension.imports.convenience;
 
+let hiddenWmClasses = [];
 let trayAddedId = 0;
 let trayRemovedId = 0;
 let getSource = null;
@@ -81,6 +82,8 @@ function onTrayIconAdded(o, icon, role) {
 	let wmClass = icon.wm_class ? icon.wm_class.toLowerCase() : "";
 	if (NotificationDaemon.STANDARD_TRAY_ICON_IMPLEMENTATIONS[wmClass] !== undefined)
 		return;
+	if (hiddenWmClasses.indexOf(wmClass) > -1)
+		return;
 	
 	let buttonBox = new PanelMenu.ButtonBox();
 	let box = buttonBox.actor;
@@ -89,7 +92,8 @@ function onTrayIconAdded(o, icon, role) {
 	let iconSize = getIconSize();
 	icon.set_size(iconSize, iconSize);
 	icon.reactive = true;
-
+	log(wmClass);
+	
 	box.add_actor(icon);
 	box.set_style(getIconStyle());
 	if (parent)
@@ -97,13 +101,13 @@ function onTrayIconAdded(o, icon, role) {
 
 	icons.push(icon);
 	Main.panel._rightBox.insert_child_at_index(box, 0);
-
+	
 	let clickProxy = new St.Bin({
 		width: iconSize
 	});
 	clickProxy.reactive = true;
 	Main.uiGroup.add_actor(clickProxy);
-
+	
 	icon._proxyAlloc = Main.panel._rightBox.connect("allocation-changed", function() {
 		Meta.later_add(Meta.LaterType.BEFORE_REDRAW, function() {
 			let [x, y] = icon.get_transformed_position();
