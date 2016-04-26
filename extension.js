@@ -81,7 +81,7 @@ function onTrayIconAdded(o, icon, role) {
 	let wmClass = icon.wm_class ? icon.wm_class.toLowerCase() : "";
 	if (NotificationDaemon.STANDARD_TRAY_ICON_IMPLEMENTATIONS[wmClass] !== undefined)
 		return;
-
+	
 	let buttonBox = new PanelMenu.ButtonBox();
 	let box = buttonBox.actor;
 	let parent = box.get_parent();
@@ -210,6 +210,7 @@ function refresh() {
 		let icon = icons[i];
 		icon.set_size(iconSize, iconSize);
 		icon.get_parent().set_style(iconStyle);
+		icon._clickProxy.set_width(iconSize);
 	}
 }
 
