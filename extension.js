@@ -86,21 +86,17 @@ function onTrayIconAdded(o, icon, role) {
 		return;
 	log(wmClass);
 
+	// Delay showing icons by 1 second, which fixes various icons being invisible
+	// https://github.com/linuxmint/Cinnamon/commit/f2134a4
+	let timeout = 1000;
+	// Delay showing Pidgin icon by 10 seconds because it's especially problematic
 	if (wmClass == "pidgin") {
-		// https://github.com/linuxmint/Cinnamon/commit/f2134a4225f82a82ba57bd370b2a51312b731d9a
-		// Delay pidgin insertion by 10 seconds
-		// Pidgin is very weird.. it starts with a small icon
-		// Then replaces that icon with a bigger one when the connection is established
-		// Pidgin can be fixed by inserting or resizing after a delay
-		// The delay is big because resizing/inserting too early
-		// makes pidgin invisible (in absence of disk cache).. even if we resize/insert again later
-		Mainloop.timeout_add(10000, function() {
-			showTrayIcon(icon, role);
-		});
+		timeout = 10000;
 	}
-	else {
+
+	Mainloop.timeout_add(timeout, function() {
 		showTrayIcon(icon, role);
-	}
+	});
 }
 
 function showTrayIcon(icon, role) {
