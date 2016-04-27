@@ -84,7 +84,26 @@ function onTrayIconAdded(o, icon, role) {
 		return;
 	if (hiddenWmClasses.indexOf(wmClass) > -1)
 		return;
-	
+	log(wmClass);
+
+	if (wmClass == "pidgin") {
+		// https://github.com/linuxmint/Cinnamon/commit/f2134a4225f82a82ba57bd370b2a51312b731d9a
+		// Delay pidgin insertion by 10 seconds
+		// Pidgin is very weird.. it starts with a small icon
+		// Then replaces that icon with a bigger one when the connection is established
+		// Pidgin can be fixed by inserting or resizing after a delay
+		// The delay is big because resizing/inserting too early
+		// makes pidgin invisible (in absence of disk cache).. even if we resize/insert again later
+		Mainloop.timeout_add(10000, function() {
+			showTrayIcon(icon, role);
+		});
+	}
+	else {
+		showTrayIcon(icon, role);
+	}
+}
+
+function showTrayIcon(icon, role) {
 	let buttonBox = new PanelMenu.ButtonBox();
 	let box = buttonBox.actor;
 	let parent = box.get_parent();
@@ -92,7 +111,6 @@ function onTrayIconAdded(o, icon, role) {
 	let iconSize = getIconSize();
 	icon.set_size(iconSize, iconSize);
 	icon.reactive = true;
-	log(wmClass);
 	
 	box.add_actor(icon);
 	box.set_style(getIconStyle());
