@@ -84,7 +84,22 @@ function onTrayIconAdded(o, icon, role) {
 		return;
 	if (hiddenWmClasses.indexOf(wmClass) > -1)
 		return;
-	
+	log(wmClass);
+
+	// Delay showing icons by 1 second, which fixes various icons being invisible
+	// https://github.com/linuxmint/Cinnamon/commit/f2134a4
+	let timeout = 1000;
+	// Delay showing Pidgin icon by 10 seconds because it's especially problematic
+	if (wmClass == "pidgin") {
+		timeout = 10000;
+	}
+
+	Mainloop.timeout_add(timeout, function() {
+		showTrayIcon(icon, role);
+	});
+}
+
+function showTrayIcon(icon, role) {
 	let buttonBox = new PanelMenu.ButtonBox();
 	let box = buttonBox.actor;
 	let parent = box.get_parent();
@@ -92,7 +107,6 @@ function onTrayIconAdded(o, icon, role) {
 	let iconSize = getIconSize();
 	icon.set_size(iconSize, iconSize);
 	icon.reactive = true;
-	log(wmClass);
 	
 	box.add_actor(icon);
 	box.set_style(getIconStyle());
