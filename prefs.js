@@ -47,17 +47,33 @@ const TopIconsSettingsWidget = new GObject.Class({
 
 		// SETTINGS
 
-		let topiconsSettings = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
-		let topiconsSettingsTitle = new Gtk.Label({ label: Gettext.gettext("Settings") });
+		let topiconsSettings = new Gtk.Box({
+			orientation: Gtk.Orientation.VERTICAL
+		});
+		let topiconsSettingsTitle = new Gtk.Label({
+			label: Gettext.gettext("Settings")
+		});
 
-		let topiconsSettingsMain = new Gtk.Box({ spacing: 30, orientation: Gtk.Orientation.HORIZONTAL, homogeneous: true, margin: 10 });
+		let topiconsSettingsMain = new Gtk.Box({
+			spacing: 30, orientation: Gtk.Orientation.VERTICAL,
+			homogeneous: true, margin: 10
+		});
 
-		let topiconsSettingsControl = new Gtk.Box({ spacing: 30, margin_left: 10, margin_top: 10, margin_right: 10 });
+		let topiconsSettingsControl = new Gtk.Box({
+			spacing: 30, margin_left: 10,
+			margin_top: 10, margin_right: 10
+		});
 
-		let topiconsSettingsGrid= new Gtk.Grid({ row_homogeneous: true, column_homogeneous: false });
+		let topiconsSettingsGrid= new Gtk.Grid({
+			row_homogeneous: true,
+			column_homogeneous: false
+		});
 
 		// Icon Size Setting
-		let iconSizeLabel = new Gtk.Label({ label: Gettext.gettext("Icon Size (px)"), use_markup: true, xalign: 0, hexpand: true });
+		let iconSizeLabel = new Gtk.Label({
+			label: Gettext.gettext("Icon Size (px)"),
+			use_markup: true, xalign: 0, hexpand: true
+		});
 		let iconSizeWidget = new Gtk.SpinButton({ halign: Gtk.Align.END });
 		iconSizeWidget.set_sensitive(true);
 		iconSizeWidget.set_range(0, 32);
@@ -66,11 +82,13 @@ const TopIconsSettingsWidget = new GObject.Class({
 		iconSizeWidget.connect("value-changed", Lang.bind(this, function(button) {
 			let s = button.get_value_as_int();
 			this.settings.set_int("icon-size", s);
-			Main.refresh();
 		}));
 
 		// Icon Padding Setting
-		let iconPaddingLabel = new Gtk.Label({ label: Gettext.gettext("Icon Padding (px)"), use_markup: true, xalign: 0, hexpand: true });
+		let iconPaddingLabel = new Gtk.Label({
+			label: Gettext.gettext("Icon Padding (px)"),
+			use_markup: true, xalign: 0, hexpand: true
+		});
 		let iconPaddingWidget = new Gtk.SpinButton({ halign: Gtk.Align.END });
 		iconPaddingWidget.set_sensitive(true);
 		iconPaddingWidget.set_range(0, 32);
@@ -79,15 +97,23 @@ const TopIconsSettingsWidget = new GObject.Class({
 		iconPaddingWidget.connect("value-changed", Lang.bind(this, function(button) {
 			let s = button.get_value_as_int();
 			this.settings.set_int("icon-padding", s);
-			Main.refresh();
 		}));
 
+		// Hidden Icons List
+		let hiddenIconsLabel = new Gtk.Label({
+			label: Gettext.gettext("Hidden Icons"),
+			use_markup: true, xalign: 0, hexpand: true
+		});
+		let hiddenIconsListStore = new Gtk.ListStore();
+		hiddenIconsListStore.set_column_types([ GObject.TYPE_STRING ]);
+		
 		topiconsSettingsGrid.attach(iconSizeLabel, 0, 0, 1, 1);
 		topiconsSettingsGrid.attach(iconSizeWidget, 1, 0, 1, 1);
 		topiconsSettingsGrid.attach(iconPaddingLabel, 0, 1, 1, 1);
 		topiconsSettingsGrid.attach(iconPaddingWidget, 1, 1, 1, 1);
 
 		topiconsSettingsMain.add(topiconsSettingsGrid);
+		//topiconsSettingsMain.add(hiddenIconsLabel);
 
 		topiconsSettings.add(topiconsSettingsControl);
 		topiconsSettings.add(topiconsSettingsMain);
@@ -96,15 +122,27 @@ const TopIconsSettingsWidget = new GObject.Class({
 		let topiconsAbout = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
 		let topiconsAboutTitle = new Gtk.Label({ label: Gettext.gettext("About") });
 
-		let topiconsAboutMain = new Gtk.Box({ spacing: 30, orientation: Gtk.Orientation.HORIZONTAL, homogeneous: true, margin: 10 });
+		let topiconsAboutMain = new Gtk.Box({
+			spacing: 30, orientation: Gtk.Orientation.HORIZONTAL,
+			homogeneous: true, margin: 10
+		});
 
-		let topiconsAboutControl = new Gtk.Box({ spacing: 30, margin_left: 10, margin_top: 10, margin_right: 10 });
+		let topiconsAboutControl = new Gtk.Box({
+			spacing: 30, margin_left: 10,
+			margin_top: 10, margin_right: 10
+		});
 
-		let topiconsAboutGrid= new Gtk.Grid({ row_homogeneous: true, column_homogeneous: false });
+		let topiconsAboutGrid= new Gtk.Grid({
+			row_homogeneous: true,
+			column_homogeneous: false
+		});
 
 		// License
-		licenseTextView = new Gtk.TextView({ hexpand: true, justification: Gtk.Justification.CENTER, editable: false });
-		licenseBuffer = licenseTextView.get_buffer();
+		let licenseTextView = new Gtk.TextView({
+			editable: false, hexpand: true,
+			justification: Gtk.Justification.CENTER
+		});
+		let licenseBuffer = licenseTextView.get_buffer();
 		licenseBuffer.set_text(Gettext.gettext("topicons, a GNOME shell extension to show legacy tray icons in the top bar.\nCopyright (C) 2015	 Kevin Boxhoorn\n\ntopicons is free software: you can redistribute it and/or modify\nit under the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\ntopicons is distributed in the hope that it will be useful,\nbut WITHOUT ANY WARRANTY; without even the implied warranty of\nMERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the\nGNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License\nalong with topicons.  If not, see <http://www.gnu.org/licenses/>."), -1);
 
 		topiconsAboutGrid.attach(licenseTextView, 0, 0, 1, 1);
