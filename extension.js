@@ -59,6 +59,7 @@ function init() {
 	// we need to refresh icons when user changes settings
 	schema.connect("changed::icon-size", Lang.bind(this, refresh));
 	schema.connect("changed::icon-padding", Lang.bind(this, refresh));
+	schema.connect("changed::hidden-icons", Lang.bind(this, refresh));
 }
 
 function enable() {
@@ -79,10 +80,9 @@ function createSource(title, pid, ndata, sender, trayIcon) {
 }
 
 function onTrayIconAdded(o, icon, role) {
-	let wmClass = icon.wm_class ? icon.wm_class.toLowerCase() : "";
-	if (NotificationDaemon.STANDARD_TRAY_ICON_IMPLEMENTATIONS[wmClass] !== undefined)
-		return;
-	if (hiddenWmClasses.indexOf(wmClass) > -1)
+	let wmClass = getWmClass(icon);
+	if (NotificationDaemon.STANDARD_TRAY_ICON_IMPLEMENTATIONS[wmClass] !== undefined
+		|| hiddenWmClasses.indexOf(wmClass) > -1)
 		return;
 	log(wmClass);
 
@@ -223,9 +223,15 @@ function moveToTray() {
 function refresh() {
 	let iconSize = getIconSize();
 	let iconStyle = getIconStyle();
+	hiddenWmClasses = schema.get_value("hidden-icons").get_strv() || [];
 
 	for (let i = 0; i < icons.length; i++) {
 		let icon = icons[i];
+		if (hiddenWmClasses.indexOf(getWmClass(icon)) > -1) {
+			onTrayIconRemoved(null, icon);
+			continue;
+		}
+		
 		icon.set_size(iconSize, iconSize);
 		icon.get_parent().set_style(iconStyle);
 		icon._clickProxy.set_width(iconSize);
@@ -238,4 +244,8 @@ function getIconSize() {
 }
 function getIconStyle() {
 	return "-natural-hpadding: %dpx".format(schema.get_int("icon-padding"));
+}
+
+function getWmClass(icon) {
+	return icon.wm_class ? icon.wm_class.toLowerCase() : "";
 }
