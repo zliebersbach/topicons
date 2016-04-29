@@ -92,9 +92,9 @@ function onTrayIconAdded(o, icon, role) {
 		return;
 	log(wmClass);
 
-	// Delay showing icons by 1 second, which fixes various icons being invisible
+	// Delay showing icons by ½ second, which fixes various icons being invisible
 	// https://github.com/linuxmint/Cinnamon/commit/f2134a4
-	let timeout = 1000;
+	let timeout = 500;
 	// Delay showing Pidgin icon by 10 seconds because it's especially problematic
 	if (wmClass == "pidgin") {
 		timeout = 10000;
