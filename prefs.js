@@ -53,24 +53,18 @@ const TopIconsSettingsWidget = new GObject.Class({
 		let topiconsSettingsTitle = new Gtk.Label({
 			label: Gettext.gettext("Settings")
 		});
-
 		let topiconsSettingsMain = new Gtk.Box({
 			orientation: Gtk.Orientation.VERTICAL,
-			homogeneous: true, margin: 10
+			margin: 10, spacing: 10
 		});
-
 		let topiconsSettingsControl = new Gtk.Box({
-			margin_left: 10, margin_top: 10, margin_right: 10
+			margin_left: 10, margin_right: 10
 		});
-
-		let topiconsSettingsGrid= new Gtk.Grid({
-			row_homogeneous: true,
-			column_homogeneous: false
-		});
+		let topiconsSettingsGrid= new Gtk.Grid();
 
 		// Icon Size Setting
 		let iconSizeLabel = new Gtk.Label({
-			label: Gettext.gettext("Icon Size (px)"),
+			label: Gettext.gettext("Icon Size <small><tt>(px)</tt></small>"),
 			use_markup: true, xalign: 0, hexpand: true
 		});
 		let iconSizeWidget = new Gtk.SpinButton({ halign: Gtk.Align.END });
@@ -78,14 +72,16 @@ const TopIconsSettingsWidget = new GObject.Class({
 		iconSizeWidget.set_range(0, 32);
 		iconSizeWidget.set_value(this.settings.get_int("icon-size"));
 		iconSizeWidget.set_increments(1, 2);
-		iconSizeWidget.connect("value-changed", Lang.bind(this, function(button) {
-			let s = button.get_value_as_int();
-			this.settings.set_int("icon-size", s);
-		}));
+		iconSizeWidget.connect("value-changed", Lang.bind(this,
+			function(button) {
+				let s = button.get_value_as_int();
+				this.settings.set_int("icon-size", s);
+			}
+		));
 
 		// Icon Padding Setting
 		let iconPaddingLabel = new Gtk.Label({
-			label: Gettext.gettext("Icon Padding (px)"),
+			label: Gettext.gettext("Icon Padding <small><tt>(px)</tt></small>"),
 			use_markup: true, xalign: 0, hexpand: true
 		});
 		let iconPaddingWidget = new Gtk.SpinButton({ halign: Gtk.Align.END });
@@ -93,17 +89,18 @@ const TopIconsSettingsWidget = new GObject.Class({
 		iconPaddingWidget.set_range(0, 32);
 		iconPaddingWidget.set_value(this.settings.get_int("icon-padding"));
 		iconPaddingWidget.set_increments(1, 2);
-		iconPaddingWidget.connect("value-changed", Lang.bind(this, function(button) {
-			let s = button.get_value_as_int();
-			this.settings.set_int("icon-padding", s);
-		}));
+		iconPaddingWidget.connect("value-changed", Lang.bind(this,
+			function(button) {
+				let s = button.get_value_as_int();
+				this.settings.set_int("icon-padding", s);
+			}
+		));
 
 		// Hidden Icons List
 		let hiddenIconsLabel = new Gtk.Label({
 			label: Gettext.gettext("Hidden Icons"),
 			use_markup: true, xalign: 0, hexpand: true
 		});
-		
 		this.hiddenIconsListStore = new Gtk.ListStore();
 		this.hiddenIconsListStore.set_column_types([
 			GObject.TYPE_STRING, GObject.TYPE_BOOLEAN
@@ -111,29 +108,31 @@ const TopIconsSettingsWidget = new GObject.Class({
 		let hiddenIconsTreeView = new Gtk.TreeView({
 			expand: true, model: this.hiddenIconsListStore
 		});
-		
 		let hiddenIconsNameCol = new Gtk.TreeViewColumn({
 			title: "Name", expand: true
 		});
 		let hiddenIconsStatusCol = new Gtk.TreeViewColumn({ title: "Hidden" });
 		let hiddenIconsNameRen = new Gtk.CellRendererText();
 		let hiddenIconsStatusRen = new Gtk.CellRendererToggle();
-		hiddenIconsStatusRen.connect("toggled", Lang.bind(this, function(o, path) {
-			let wmClass = this.currentIcons[path];
-			let foundIndex = this.hiddenIcons.indexOf(wmClass);
-			if (foundIndex > -1) {
-				this.hiddenIcons.splice(foundIndex, 1);
-			} else {
-				this.hiddenIcons.push(wmClass);
-			}
-			this.settings.set_strv("hidden-icons", this.hiddenIcons);
-		}));
 		hiddenIconsNameCol.pack_start(hiddenIconsNameRen, true);
 		hiddenIconsStatusCol.pack_start(hiddenIconsStatusRen, true);
 		hiddenIconsNameCol.add_attribute(hiddenIconsNameRen, "text", 0);
 		hiddenIconsStatusCol.add_attribute(hiddenIconsStatusRen, "active", 1);
 		hiddenIconsTreeView.append_column(hiddenIconsNameCol);
 		hiddenIconsTreeView.append_column(hiddenIconsStatusCol);
+		
+		hiddenIconsStatusRen.connect("toggled", Lang.bind(this,
+			function(o, path) {
+				let wmClass = this.currentIcons[path];
+				let foundIndex = this.hiddenIcons.indexOf(wmClass);
+				if (foundIndex > -1) {
+					this.hiddenIcons.splice(foundIndex, 1);
+				} else {
+					this.hiddenIcons.push(wmClass);
+				}
+				this.settings.set_strv("hidden-icons", this.hiddenIcons);
+			}
+		));
 		this.settings.connect("changed::current-icons",
 			Lang.bind(this, this._updateIconsList));
 		this.settings.connect("changed::hidden-icons",
@@ -153,22 +152,20 @@ const TopIconsSettingsWidget = new GObject.Class({
 		topiconsSettings.add(topiconsSettingsMain);
 
 		// ABOUT
-		let topiconsAbout = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
-		let topiconsAboutTitle = new Gtk.Label({ label: Gettext.gettext("About") });
-
+		let topiconsAbout = new Gtk.Box({
+			orientation: Gtk.Orientation.VERTICAL
+		});
+		let topiconsAboutTitle = new Gtk.Label({
+			label: Gettext.gettext("About")
+		});
 		let topiconsAboutMain = new Gtk.Box({
 			orientation: Gtk.Orientation.HORIZONTAL,
-			homogeneous: true, margin: 10
+			margin: 10
 		});
-
 		let topiconsAboutControl = new Gtk.Box({
-			margin_left: 10, margin_top: 10, margin_right: 10
+			margin_left: 10, margin_right: 10
 		});
-
-		let topiconsAboutGrid= new Gtk.Grid({
-			row_homogeneous: true,
-			column_homogeneous: false
-		});
+		let topiconsAboutGrid= new Gtk.Grid();
 
 		// License
 		let licenseTextView = new Gtk.TextView({
@@ -209,8 +206,7 @@ const TopIconsSettingsWidget = new GObject.Class({
 
 function buildPrefsWidget() {
 	let widget = new TopIconsSettingsWidget({
-		orientation: Gtk.Orientation.VERTICAL,
-		spacing: 5, border_width: 5
+		orientation: Gtk.Orientation.VERTICAL
 	});
 	widget.show_all();
 
