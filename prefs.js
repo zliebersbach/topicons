@@ -55,13 +55,12 @@ const TopIconsSettingsWidget = new GObject.Class({
 		});
 
 		let topiconsSettingsMain = new Gtk.Box({
-			spacing: 30, orientation: Gtk.Orientation.VERTICAL,
+			orientation: Gtk.Orientation.VERTICAL,
 			homogeneous: true, margin: 10
 		});
 
 		let topiconsSettingsControl = new Gtk.Box({
-			spacing: 30, margin_left: 10,
-			margin_top: 10, margin_right: 10
+			margin_left: 10, margin_top: 10, margin_right: 10
 		});
 
 		let topiconsSettingsGrid= new Gtk.Grid({
@@ -104,8 +103,42 @@ const TopIconsSettingsWidget = new GObject.Class({
 			label: Gettext.gettext("Hidden Icons"),
 			use_markup: true, xalign: 0, hexpand: true
 		});
-		let hiddenIconsListStore = new Gtk.ListStore();
-		hiddenIconsListStore.set_column_types([ GObject.TYPE_STRING ]);
+		
+		this.hiddenIconsListStore = new Gtk.ListStore();
+		this.hiddenIconsListStore.set_column_types([
+			GObject.TYPE_STRING, GObject.TYPE_BOOLEAN
+		]);
+		let hiddenIconsTreeView = new Gtk.TreeView({
+			expand: true, model: this.hiddenIconsListStore
+		});
+		
+		let hiddenIconsNameCol = new Gtk.TreeViewColumn({
+			title: "Name", expand: true
+		});
+		let hiddenIconsStatusCol = new Gtk.TreeViewColumn({ title: "Hidden" });
+		let hiddenIconsNameRen = new Gtk.CellRendererText();
+		let hiddenIconsStatusRen = new Gtk.CellRendererToggle();
+		hiddenIconsStatusRen.connect("toggled", Lang.bind(this, function(o, path) {
+			let wmClass = this.currentIcons[path];
+			let foundIndex = this.hiddenIcons.indexOf(wmClass);
+			if (foundIndex > -1) {
+				this.hiddenIcons.splice(foundIndex, 1);
+			} else {
+				this.hiddenIcons.push(wmClass);
+			}
+			this.settings.set_strv("hidden-icons", this.hiddenIcons);
+		}));
+		hiddenIconsNameCol.pack_start(hiddenIconsNameRen, true);
+		hiddenIconsStatusCol.pack_start(hiddenIconsStatusRen, true);
+		hiddenIconsNameCol.add_attribute(hiddenIconsNameRen, "text", 0);
+		hiddenIconsStatusCol.add_attribute(hiddenIconsStatusRen, "active", 1);
+		hiddenIconsTreeView.append_column(hiddenIconsNameCol);
+		hiddenIconsTreeView.append_column(hiddenIconsStatusCol);
+		this.settings.connect("changed::current-icons",
+			Lang.bind(this, this._updateIconsList));
+		this.settings.connect("changed::hidden-icons",
+			Lang.bind(this, this._updateIconsList));
+		this._updateIconsList();
 		
 		topiconsSettingsGrid.attach(iconSizeLabel, 0, 0, 1, 1);
 		topiconsSettingsGrid.attach(iconSizeWidget, 1, 0, 1, 1);
@@ -113,7 +146,8 @@ const TopIconsSettingsWidget = new GObject.Class({
 		topiconsSettingsGrid.attach(iconPaddingWidget, 1, 1, 1, 1);
 
 		topiconsSettingsMain.add(topiconsSettingsGrid);
-		//topiconsSettingsMain.add(hiddenIconsLabel);
+		topiconsSettingsMain.add(hiddenIconsLabel);
+		topiconsSettingsMain.add(hiddenIconsTreeView);
 
 		topiconsSettings.add(topiconsSettingsControl);
 		topiconsSettings.add(topiconsSettingsMain);
@@ -123,13 +157,12 @@ const TopIconsSettingsWidget = new GObject.Class({
 		let topiconsAboutTitle = new Gtk.Label({ label: Gettext.gettext("About") });
 
 		let topiconsAboutMain = new Gtk.Box({
-			spacing: 30, orientation: Gtk.Orientation.HORIZONTAL,
+			orientation: Gtk.Orientation.HORIZONTAL,
 			homogeneous: true, margin: 10
 		});
 
 		let topiconsAboutControl = new Gtk.Box({
-			spacing: 30, margin_left: 10,
-			margin_top: 10, margin_right: 10
+			margin_left: 10, margin_top: 10, margin_right: 10
 		});
 
 		let topiconsAboutGrid= new Gtk.Grid({
@@ -156,11 +189,29 @@ const TopIconsSettingsWidget = new GObject.Class({
 		notebook.append_page(topiconsAbout, topiconsAboutTitle);
 
 		this.add(notebook);
+	},
+
+	_updateIconsList: function() {
+		this.currentIcons = this.settings.get_strv("current-icons");
+		this.hiddenIcons = this.settings.get_strv("hidden-icons");
+
+		this.hiddenIconsListStore.clear();
+		for (let i = 0; i < this.currentIcons.length; i++) {
+			let wmClass = this.currentIcons[i];
+			let hidden = this.hiddenIcons.indexOf(wmClass) > -1;
+			this.hiddenIconsListStore.set(this.hiddenIconsListStore.append(),
+				[ 0, 1 ],
+				[ wmClass, hidden ]
+			);
+		}
 	}
 });
 
 function buildPrefsWidget() {
-	let widget = new TopIconsSettingsWidget({ orientation: Gtk.Orientation.VERTICAL, spacing: 5, border_width: 5 });
+	let widget = new TopIconsSettingsWidget({
+		orientation: Gtk.Orientation.VERTICAL,
+		spacing: 5, border_width: 5
+	});
 	widget.show_all();
 
 	return widget;
