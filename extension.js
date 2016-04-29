@@ -38,6 +38,9 @@ let trayAddedId = 0;
 let trayRemovedId = 0;
 let getSource = null;
 let icons = [];
+let iconWmClasses = [];
+let iconSize = 0;
+let iconStyle = "";
 let notificationDaemon;
 let schema;
 
@@ -60,6 +63,8 @@ function init() {
 	schema.connect("changed::icon-size", Lang.bind(this, refresh));
 	schema.connect("changed::icon-padding", Lang.bind(this, refresh));
 	schema.connect("changed::hidden-icons", Lang.bind(this, refresh));
+
+	refresh();
 }
 
 function enable() {
@@ -81,8 +86,9 @@ function createSource(title, pid, ndata, sender, trayIcon) {
 
 function onTrayIconAdded(o, icon, role) {
 	let wmClass = getWmClass(icon);
-	if (NotificationDaemon.STANDARD_TRAY_ICON_IMPLEMENTATIONS[wmClass] !== undefined
-		|| hiddenWmClasses.indexOf(wmClass) > -1)
+	iconWmClasses.push(wmClass);
+	schema.set_strv("current-icons", iconWmClasses);
+	if (NotificationDaemon.STANDARD_TRAY_ICON_IMPLEMENTATIONS[wmClass] !== undefined)
 		return;
 	log(wmClass);
 
@@ -95,21 +101,22 @@ function onTrayIconAdded(o, icon, role) {
 	}
 
 	Mainloop.timeout_add(timeout, function() {
-		showTrayIcon(icon, role);
+		addTrayIcon(icon, role);
+		if (hiddenWmClasses.indexOf(wmClass) > -1)
+			hideTrayIcon(icon);
 	});
 }
 
-function showTrayIcon(icon, role) {
+function addTrayIcon(icon, role) {
 	let buttonBox = new PanelMenu.ButtonBox();
 	let box = buttonBox.actor;
 	let parent = box.get_parent();
 
-	let iconSize = getIconSize();
 	icon.set_size(iconSize, iconSize);
 	icon.reactive = true;
 	
 	box.add_actor(icon);
-	box.set_style(getIconStyle());
+	box.set_style(iconStyle);
 	if (parent)
 		parent.remove_actor(box);
 
@@ -139,7 +146,15 @@ function showTrayIcon(icon, role) {
 		icon.click(event);
 	});
 
+	icon._box = box;
 	icon._clickProxy = clickProxy;
+}
+
+function showTrayIcon(icon) {
+	icon._box.show();
+}
+function hideTrayIcon(icon) {
+	icon._box.hide();
 }
 
 function onTrayIconRemoved(o, icon) {
@@ -147,6 +162,9 @@ function onTrayIconRemoved(o, icon) {
 	parent.destroy();
 	icon.destroy();
 	icons.splice(icons.indexOf(icon), 1);
+	
+	iconWmClasses.splice(iconWmClasses.indexOf(getWmClass(icon)), 1);
+	schema.set_strv("current-icons", iconWmClasses);
 }
 
 function moveToTop() {
@@ -221,15 +239,17 @@ function moveToTray() {
 }
 
 function refresh() {
-	let iconSize = getIconSize();
-	let iconStyle = getIconStyle();
-	hiddenWmClasses = schema.get_value("hidden-icons").get_strv() || [];
+	iconSize = getIconSize();
+	iconStyle = getIconStyle();
+	hiddenWmClasses = schema.get_strv("hidden-icons") || [];
 
 	for (let i = 0; i < icons.length; i++) {
 		let icon = icons[i];
 		if (hiddenWmClasses.indexOf(getWmClass(icon)) > -1) {
-			onTrayIconRemoved(null, icon);
+			hideTrayIcon(icon);
 			continue;
+		} else {
+			showTrayIcon(icon, null);
 		}
 		
 		icon.set_size(iconSize, iconSize);
