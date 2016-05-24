@@ -112,6 +112,7 @@ function addTrayIcon(icon, role) {
 	let box = buttonBox.actor;
 	let parent = box.get_parent();
 
+	iconSize = getIconSize();
 	icon.set_size(iconSize, iconSize);
 	icon.reactive = true;
 	
