@@ -34,7 +34,7 @@ fetch-updates:
 	git reset --hard HEAD
 	git pull --rebase --prune
 
-update: fetch-updates install
+update: clean fetch-updates install
 
 uninstall:
 	rm -vrf $(EXT_DIR)/$(EXT_NAME)
