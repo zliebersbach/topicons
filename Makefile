@@ -18,6 +18,8 @@
 EXT_DIR=$(HOME)/.local/share/gnome-shell/extensions
 EXT_NAME=topIcons@kevinboxhoorn.yahoo.com
 
+.PHONY: build build-schema install fetch-updates update uninstall clean
+
 build: build-schema
 	mkdir -vp build
 	cp -vr schemas convenience.js extension.js metadata.json prefs.js build
