@@ -18,6 +18,8 @@
 EXT_DIR=$(HOME)/.local/share/gnome-shell/extensions
 EXT_NAME=topIcons@kevinboxhoorn.yahoo.com
 
+.PHONY: build build-schema install fetch-updates update uninstall clean
+
 build: build-schema
 	mkdir -vp build
 	cp -vr schemas convenience.js extension.js metadata.json prefs.js build
@@ -26,8 +28,13 @@ build-schema: schemas/org.gnome.shell.extensions.topicons.gschema.xml
 	glib-compile-schemas schemas
 
 install: build
-	mkdir -vp $(EXT_DIR)/$(EXT_NAME)
-	cp -vr build/* $(EXT_DIR)/$(EXT_NAME)
+	ln -sfn ${PWD}/build $(EXT_DIR)/$(EXT_NAME)
+
+fetch-updates:
+	git reset --hard HEAD
+	git pull --rebase --prune
+
+update: clean fetch-updates install
 
 uninstall:
 	rm -vrf $(EXT_DIR)/$(EXT_NAME)
