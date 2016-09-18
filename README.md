@@ -29,6 +29,6 @@ To update Top Icons, run the following command in the directory where the source
 
 ## Uninstalling
 
-To uninstall Top Icons, simply run the following command in the directory where the source code was downloaded:
+To uninstall Top Icons, run the following command in the directory where the source code was downloaded:
 
     $ make uninstall
