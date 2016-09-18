@@ -28,6 +28,12 @@ build-schema: schemas/org.gnome.shell.extensions.topicons.gschema.xml
 install: build
 	ln -sfn ${PWD}/build $(EXT_DIR)/$(EXT_NAME)
 
+fetch-updates:
+	git reset --hard HEAD
+	git pull --rebase --prune
+
+update: fetch-updates install
+
 uninstall:
 	rm -vrf $(EXT_DIR)/$(EXT_NAME)
 
