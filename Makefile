@@ -26,8 +26,7 @@ build-schema: schemas/org.gnome.shell.extensions.topicons.gschema.xml
 	glib-compile-schemas schemas
 
 install: build
-	mkdir -vp $(EXT_DIR)/$(EXT_NAME)
-	cp -vr build/* $(EXT_DIR)/$(EXT_NAME)
+	ln -sfn ${PWD}/build $(EXT_DIR)/$(EXT_NAME)
 
 uninstall:
 	rm -vrf $(EXT_DIR)/$(EXT_NAME)
