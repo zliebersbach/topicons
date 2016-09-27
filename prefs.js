@@ -120,10 +120,10 @@ const TopIconsSettingsWidget = new GObject.Class({
 		hiddenIconsStatusCol.add_attribute(hiddenIconsStatusRen, "active", 1);
 		hiddenIconsTreeView.append_column(hiddenIconsNameCol);
 		hiddenIconsTreeView.append_column(hiddenIconsStatusCol);
-		
+
 		hiddenIconsStatusRen.connect("toggled", Lang.bind(this,
 			function(o, path) {
-				let wmClass = this.currentIcons[path];
+				let wmClass = this.listIcons[path];
 				let foundIndex = this.hiddenIcons.indexOf(wmClass);
 				if (foundIndex > -1) {
 					this.hiddenIcons.splice(foundIndex, 1);
@@ -138,7 +138,7 @@ const TopIconsSettingsWidget = new GObject.Class({
 		this.settings.connect("changed::hidden-icons",
 			Lang.bind(this, this._updateIconsList));
 		this._updateIconsList();
-		
+
 		topiconsSettingsGrid.attach(iconSizeLabel, 0, 0, 1, 1);
 		topiconsSettingsGrid.attach(iconSizeWidget, 1, 0, 1, 1);
 		topiconsSettingsGrid.attach(iconPaddingLabel, 0, 1, 1, 1);
@@ -191,10 +191,12 @@ const TopIconsSettingsWidget = new GObject.Class({
 	_updateIconsList: function() {
 		this.currentIcons = this.settings.get_strv("current-icons");
 		this.hiddenIcons = this.settings.get_strv("hidden-icons");
+		let hasCurrentIcons = this.currentIcons.length > 0;
+		this.listIcons = hasCurrentIcons ? this.currentIcons : this.hiddenIcons;
 
 		this.hiddenIconsListStore.clear();
-		for (let i = 0; i < this.currentIcons.length; i++) {
-			let wmClass = this.currentIcons[i];
+		for (let i = 0; i < this.listIcons.length; i++) {
+			let wmClass = this.listIcons[i];
 			let hidden = this.hiddenIcons.indexOf(wmClass) > -1;
 			this.hiddenIconsListStore.set(this.hiddenIconsListStore.append(),
 				[ 0, 1 ],
