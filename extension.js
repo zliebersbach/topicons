@@ -90,7 +90,6 @@ function onTrayIconAdded(o, icon, role) {
 	schema.set_strv("current-icons", iconWmClasses);
 	if (NotificationDaemon.STANDARD_TRAY_ICON_IMPLEMENTATIONS[wmClass] !== undefined)
 		return;
-	log(wmClass);
 
 	// Delay showing icons by ½ second, which fixes various icons being invisible
 	// https://github.com/linuxmint/Cinnamon/commit/f2134a4
@@ -115,7 +114,7 @@ function addTrayIcon(icon, role) {
 	iconSize = getIconSize();
 	icon.set_size(iconSize, iconSize);
 	icon.reactive = true;
-	
+
 	box.add_actor(icon);
 	box.set_style(iconStyle);
 	if (parent)
@@ -123,13 +122,13 @@ function addTrayIcon(icon, role) {
 
 	icons.push(icon);
 	Main.panel._rightBox.insert_child_at_index(box, 0);
-	
+
 	let clickProxy = new St.Bin({
 		width: iconSize
 	});
 	clickProxy.reactive = true;
 	Main.uiGroup.add_actor(clickProxy);
-	
+
 	icon._proxyAlloc = Main.panel._rightBox.connect("allocation-changed", function() {
 		Meta.later_add(Meta.LaterType.BEFORE_REDRAW, function() {
 			let [x, y] = icon.get_transformed_position();
@@ -163,7 +162,7 @@ function onTrayIconRemoved(o, icon) {
 	parent.destroy();
 	icon.destroy();
 	icons.splice(icons.indexOf(icon), 1);
-	
+
 	iconWmClasses.splice(iconWmClasses.indexOf(getWmClass(icon)), 1);
 	schema.set_strv("current-icons", iconWmClasses);
 }
@@ -237,6 +236,8 @@ function moveToTray() {
 	}
 
 	icons = [];
+	iconWmClasses = [];
+	schema.set_strv("current-icons", iconWmClasses);
 }
 
 function refresh() {
@@ -252,7 +253,7 @@ function refresh() {
 		} else {
 			showTrayIcon(icon, null);
 		}
-		
+
 		icon.set_size(iconSize, iconSize);
 		icon.get_parent().set_style(iconStyle);
 		icon._clickProxy.set_width(iconSize);
