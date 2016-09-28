@@ -6,6 +6,7 @@ A GNOME shell extension to show legacy tray icons in the top bar. This is a fork
 
 *   GNOME Shell
 *   GNOME Tweak Tool
+*   GNU Make
 
 ## Installing
 
