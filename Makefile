@@ -26,7 +26,7 @@ build:
 	glib-compile-schemas build/schemas
 
 clean:
-    rm -vrf build
+	rm -vrf build
 
 install: build
 	cp -vr ${PWD}/build $(EXT_DIR)/$(EXT_NAME)
