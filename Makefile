@@ -18,15 +18,18 @@
 EXT_DIR=$(HOME)/.local/share/gnome-shell/extensions
 EXT_NAME=topIcons@kevinboxhoorn.yahoo.com
 
-.PHONY: build install uninstall fetch-updates update
+.PHONY: build clean install uninstall fetch-updates update
 
 build:
 	mkdir -vp build
 	cp -vr schemas convenience.js extension.js metadata.json prefs.js build
 	glib-compile-schemas build/schemas
 
+clean:
+    rm -vrf build
+
 install: build
-	mv ${PWD}/build $(EXT_DIR)/$(EXT_NAME)
+	cp -vr ${PWD}/build $(EXT_DIR)/$(EXT_NAME)
 
 uninstall:
 	rm -vrf $(EXT_DIR)/$(EXT_NAME)
@@ -35,4 +38,4 @@ fetch-updates:
 	git reset --hard HEAD
 	git pull --rebase --prune
 
-update: fetch-updates uninstall build
+update: clean fetch-updates build
