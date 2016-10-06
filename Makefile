@@ -18,7 +18,7 @@
 EXT_DIR=$(HOME)/.local/share/gnome-shell/extensions
 EXT_NAME=topIcons@kevinboxhoorn.yahoo.com
 
-.PHONY: build clean install uninstall fetch-updates update
+.PHONY: build clean install uninstall fetch-updates update default
 
 build:
 	mkdir -vp build
@@ -39,3 +39,5 @@ fetch-updates:
 	git pull --rebase --prune
 
 update: uninstall clean fetch-updates install
+
+default: build
