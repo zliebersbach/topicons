@@ -24,15 +24,18 @@ build:
 	mkdir -vp build
 	cp -vr schemas convenience.js extension.js metadata.json prefs.js build
 	glib-compile-schemas build/schemas
+
 clean:
 	rm -vrf build
 
 install: build
-	ln -sfn ${PWD}/build $(EXT_DIR)/$(EXT_NAME)
+	cp -vr ${PWD}/build $(EXT_DIR)/$(EXT_NAME)
+
 uninstall:
-	rm -v $(EXT_DIR)/$(EXT_NAME)
+	rm -vrf $(EXT_DIR)/$(EXT_NAME)
 
 fetch-updates:
 	git reset --hard HEAD
 	git pull --rebase --prune
+
 update: clean fetch-updates build
