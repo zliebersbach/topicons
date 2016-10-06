@@ -38,4 +38,4 @@ fetch-updates:
 	git reset --hard HEAD
 	git pull --rebase --prune
 
-update: clean fetch-updates build
+update: uninstall clean fetch-updates install
