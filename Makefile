@@ -29,6 +29,7 @@ clean:
 	rm -vrf build
 
 install: build
+	mkdir -vp $(EXT_DIR)
 	cp -vr ${PWD}/build $(EXT_DIR)/$(EXT_NAME)
 
 uninstall:
